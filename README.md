@@ -2,6 +2,8 @@
 
 A RESTful API for managing a books collection, built with Node.js and Express. Supports full CRUD operations, search filtering, and pagination.
 
+**Live:** https://your-app.up.railway.app
+
 ---
 
 ## Tech Stack
@@ -10,6 +12,7 @@ A RESTful API for managing a books collection, built with Node.js and Express. S
 - **Framework:** Express.js
 - **Logging:** Morgan
 - **Security:** Helmet, express-rate-limit
+- **Deployed on:** Railway
 
 ---
 
@@ -60,12 +63,12 @@ GET /api/books
 
 **Query Parameters**
 
-| Parameter | Type   | Description                        |
-|-----------|--------|------------------------------------|
-| `title`   | string | Filter books by title (partial match) |
-| `author`  | string | Filter books by author (partial match) |
-| `page`    | number | Page number (default: 1)           |
-| `limit`   | number | Results per page (default: 5)      |
+| Parameter | Type   | Description                           |
+|-----------|--------|---------------------------------------|
+| `title`   | string | Filter by title (partial match)       |
+| `author`  | string | Filter by author (partial match)      |
+| `page`    | number | Page number (default: 1)              |
+| `limit`   | number | Results per page (default: 5)         |
 
 **Example Request**
 ```
@@ -113,7 +116,7 @@ GET /api/books/1
 }
 ```
 
-**Not Found Response** `404`
+**Not Found** `404`
 ```json
 {
   "error": "Book not found"
@@ -130,11 +133,11 @@ POST /api/books
 
 **Request Body**
 
-| Field    | Type   | Required | Description          |
-|----------|--------|----------|----------------------|
-| `title`  | string | Yes      | Title of the book    |
-| `author` | string | Yes      | Author of the book   |
-| `year`   | number | No       | Publication year     |
+| Field    | Type   | Required | Description        |
+|----------|--------|----------|--------------------|
+| `title`  | string | Yes      | Title of the book  |
+| `author` | string | Yes      | Author of the book |
+| `year`   | number | No       | Publication year   |
 
 **Example Request**
 ```json
@@ -155,7 +158,7 @@ POST /api/books
 }
 ```
 
-**Validation Error Response** `400`
+**Validation Error** `400`
 ```json
 {
   "error": "title and author are required"
@@ -199,6 +202,17 @@ DELETE /api/books/:id
 
 ---
 
+## Rate Limiting
+
+| Scope              | Limit               |
+|--------------------|---------------------|
+| All `/api` routes  | 100 requests / 15 min |
+| Write operations   | 20 requests / 15 min  |
+
+Blocked requests receive `429 Too Many Requests`.
+
+---
+
 ## Project Structure
 
 ```
@@ -232,12 +246,14 @@ PORT=3000
 NODE_ENV=development
 ```
 
----
-
-## Testing
-
-All endpoints were tested manually using [Postman](https://www.postman.com). Import the base URL `http://localhost:3000` and test each endpoint using the examples documented above.
+In production, these are set directly in the Railway dashboard — the `.env` file is never committed.
 
 ---
 
-> **Note:** This API uses an in-memory store. Data resets every time the server restarts. A persistent PostgreSQL database will be added in the next iteration.
+## Deployment
+
+This API is deployed on [Railway](https://railway.app) with auto-deploy enabled on the `main` branch. Every `git push` to `main` triggers a new deployment automatically.
+
+---
+
+> **Note:** This API uses an in-memory store — data resets on every server restart. A persistent PostgreSQL database will be added in a future iteration.
