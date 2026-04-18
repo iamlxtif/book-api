@@ -1,5 +1,5 @@
 {
-  "name": "5-books-api-optimized",
+  "name": "book-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,6 +13,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2",
     "express-validator": "^7.3.2",
