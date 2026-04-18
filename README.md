@@ -2,7 +2,7 @@
 
 A RESTful API for managing a books collection, built with Node.js and Express. Supports full CRUD operations, search filtering, and pagination.
 
-**Live:** https://your-app.up.railway.app
+**Live:** https://book-api-production-97b7.up.railway.app/api/books
 
 ---
 
