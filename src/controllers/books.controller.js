@@ -1,3 +1,4 @@
+import { query } from "../config/db.js"
 import { NotFoundError } from "../utils/AppError.js"
 
 let books = [
@@ -5,55 +6,81 @@ let books = [
   { id: 2, title: 'Clean Code', author: 'Robert Martin', year: 2008 },
 ]
 
-export const getbooks = (req, res) => {
-    const {title, author, page = 1, limit = 5} = req.query
-    let results = books
+export const getbooks = async (req, res) => {
+    const search = req.query.search || '' 
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+    
+    const { rows } = await query(
+        `select * from books
+        where lower(title) like lower($1) or lower(author) like lower($1)
+        order by created_at desc
+        limit $2 offset $3`,
+        [`%${search}%`, limit, offset]
+    )
 
-    if (title) results = results.filter(b => b.title.toLowerCase().includes(title.toLowerCase()))
-    if (author) results = results.filter(b => b.author.toLowerCase().includes(author.toLowerCase()))
+    const { rows: countRows } = await query(
+        `select count(*) from books
+        where lower(title) like lower($1) or lower(author) like lower($1)`,
+        [`%${search}%`]
+    )
 
-    const total = results.length
-    const start = (parseInt(page) - 1) * parseInt(limit)
-    const paginated = results.slice(start, start + parseInt(limit))
+    const total = parseInt(countRows[0].count)
     
     res.json({
-        total,
-        page: parseInt(page),
-        limit: parseInt(limit),
-        pages: Math.ceil(total / parseInt(limit)),
-        data: paginated
+        data: rows,
+        pagination: {
+            total,
+            page,
+            limit,
+            pages: Math.ceil(total / limit)
+        }
     })
 }
 
-export const getbook = (req, res) => {
+export const getbook = async (req, res) => {
     const bookId = parseInt(req.params.id)
-    const book = books.filter(b => b.id === bookId)
-    if (!book) throw new NotFoundError('Book')
-    res.json(book)
+    const {rows} = await query(
+        `select * from books
+        where id = $1`, 
+        [bookId]
+    )
+    if(!rows[0]) throw new NotFoundError('Book')
+    res.json(rows[0])
 }
 
-export const createBook = (req, res) => {
+export const createBook = async (req, res) => {
+    const {title, author, year } = req.body
+    const { rows } = await query(
+        `insert into books(title, author, year)
+        values ($1, $2, $3)
+        returning *`,
+        [title, author, year]
+    )
+    res.status(201).json(rows[0])
+}
+
+export const updateBook = async (req, res) => {
+    const bookId = parseInt(req.params.id)
     const {title, author, year} = req.body
-    const book = {
-        id: books.length > 0 ? Math.max(...books.map( b=>b.id )) + 1 : 1,
-        title: title,
-        author: author,
-        year: year || null
-    }
-    books.push(book)
-    res.status(201).json(book)
+    const {rows} = await query(
+        `update books
+        set title = $1, author = $2, year = $3
+        where id = $4
+        returning *`,
+        [title, author, year, bookId]
+    )
+    res.json(rows[0])
 }
 
-export const updateBook = (req, res) => {
-    const index = books.findIndex(b => b.id === parseInt(req.params.id))
-    if(-index) throw new NotFoundError('Book')
-    books[index] = {...books[index], ...req.body, id: books[index].id}
-    res.json(books[index])
-}
-
-export const deleteBook = (req,res) => {
-    const index = books.findIndex(b => b.id === parseInt(req.params.id))
-    if(-index) throw new NotFoundError('Book')
-    books.splice(index,1)
-    res.json(books)
+export const deleteBook = async (req,res) => {
+    const bookId = parseInt(req.params.id)
+    const { rows } = await query(
+        `delete from books where id = $1
+        returning *`,
+        [bookId]
+    )
+    if(!rows[0]) throw new NotFoundError('Book')
+    res.json(rows)
 }

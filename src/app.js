@@ -1,12 +1,15 @@
 import express from 'express'
-import { config } from 'dotenv'
+import './config/env.js'
+
+import './config/db.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import morgan from 'morgan'
 import booksRouter from './routes/book.routes.js'
 import helmet from 'helmet'
 import { apiLimiter } from './middleware/rateLimiter.js'
 
-config()
+
+
 const app = express()
 
 app.use(helmet())

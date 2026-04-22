@@ -4,7 +4,7 @@ config()
 
 const required = ['PORT','NODE_ENV']
 
-for(key of required){
+for( let key of required){
     if(!process.env[key])
         throw new Error(`Missing required environment variable: ${key}`)
 }
