@@ -1,7 +1,6 @@
 # Database Schema
 
 ## books
-
 | Column     | Type         | Constraints               |
 |------------|--------------|---------------------------|
 | id         | SERIAL       | PRIMARY KEY               |
