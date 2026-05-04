@@ -7,6 +7,7 @@ import morgan from 'morgan'
 import booksRouter from './routes/book.routes.js'
 import helmet from 'helmet'
 import { apiLimiter } from './middleware/rateLimiter.js'
+import authRouter from './routes/auth.routes.js' 
 
 
 
@@ -25,6 +26,8 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/api/books', booksRouter)
+
+app.use('/api/auth', authRouter)  
 
 app.use(errorHandler);
 
