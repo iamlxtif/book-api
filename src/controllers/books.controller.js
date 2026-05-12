@@ -52,11 +52,12 @@ export const getbook = async (req, res) => {
 
 export const createBook = async (req, res) => {
     const {title, author, year } = req.body
+    const userId = req.user?.userId || null
     const { rows } = await query(
-        `insert into books(title, author, year)
-        values ($1, $2, $3)
+        `insert into books(title, author, year, created_by)
+        values ($1, $2, $3, $4)
         returning *`,
-        [title, author, year]
+        [title, author, year, userId]
     )
     res.status(201).json(rows[0])
 }

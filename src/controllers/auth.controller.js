@@ -78,3 +78,17 @@ export const login = async (req, res) => {
     token
   })
 }
+
+
+export const getMe = async (req, res) => {
+  const { rows } = await query(
+    `select id, email, name, role, created_at from users where id = $1`,
+    [req.user.userId]
+  )
+
+  if (!rows[0]){
+    throw new AppError('User not found', 404)
+  }
+
+  res.json(rows[0])
+}
